@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-plusplus */
 /* eslint-disable no-unused-vars */
 /* resistor.js */
 
@@ -62,7 +65,19 @@
  * then use the copied object like a lookup table
  */
 function getColorValue(color) {
-  // write your code here & return value
+  const colorCodes = {
+    black: 0,
+    brown: 1,
+    red: 2,
+    orange: 3,
+    yellow: 4,
+    green: 5,
+    blue: 6,
+    violet: 7,
+    gray: 8,
+    white: 9,
+  };
+  return colorCodes[color];
 }
 
 /**
@@ -79,7 +94,21 @@ function getColorValue(color) {
  * then use the copied object like a lookup table
  */
 function getMultiplierValue(color) {
-  // write your code here & return value
+  const multiplierCodes = {
+    black: 1,
+    brown: 10,
+    red: 100,
+    orange: 1000,
+    yellow: 10000,
+    green: 100000,
+    blue: 1000000,
+    violet: 10000000,
+    grey: 100000000,
+    white: 1000000000,
+    gold: 0.1,
+    silver: 0.01,
+  };
+  return multiplierCodes[color];
 }
 
 /**
@@ -106,7 +135,49 @@ function getMultiplierValue(color) {
  *
  */
 function getThreeBandValue(bands) {
-  // write your code here & return value
+  const colorCodes = {
+    black: 0,
+    brown: 1,
+    red: 2,
+    orange: 3,
+    yellow: 4,
+    green: 5,
+    blue: 6,
+    violet: 7,
+    grey: 8,
+    white: 9,
+  };
+
+  const multiplierCodes = {
+    black: 1,
+    brown: 10,
+    red: 100,
+    orange: 1000,
+    yellow: 10000,
+    green: 100000,
+    blue: 1000000,
+    violet: 10000000,
+    grey: 100000000,
+    white: 1000000000,
+    gold: 0.1,
+    silver: 0.01,
+  };
+
+  const digit1 = colorCodes[bands.color1];
+  const digit2 = colorCodes[bands.color2];
+  const multiplier = multiplierCodes[bands.multiplier];
+
+  let value = (digit1 * 10 + digit2) * multiplier;
+
+  if (bands.multiplier === 'gold') {
+    value = Math.floor(value * 10) / 10;
+  }
+
+  if (bands.multiplier === 'silver') {
+    value = Math.floor(value * 100) / 100;
+  }
+
+  return value;
 }
 
 /**
@@ -131,7 +202,15 @@ function getThreeBandValue(bands) {
  *
  */
 function formatNumber(val) {
-  // write your code here & return value
+  const prefixes = ['', 'k', 'M', 'G']; // SI prefixes for thousand, million, billion
+  let index = 0;
+
+  while (val >= 1000 && index < prefixes.length - 1) {
+    val /= 1000;
+    index++;
+  }
+
+  return `${val.toFixed(1)}${prefixes[index]}`;
 }
 
 /**
@@ -150,7 +229,17 @@ function formatNumber(val) {
  * example: 'green' => '±0.5%'
  */
 function getTolerance(color) {
-  // write your code here & return value
+  const toleranceCodes = {
+    brown: '±1%',
+    red: '±2%',
+    green: '±0.5%',
+    blue: '±0.25%',
+    violet: '±0.1%',
+    grey: '±0.05%',
+    gold: '±5%',
+    silver: '±10%',
+  };
+  return toleranceCodes[color];
 }
 
 /**
@@ -182,7 +271,20 @@ function getTolerance(color) {
  * must use functions in this file to build the string using a template literal
  */
 function getResistorOhms(bands) {
-  // write your code here & return value
+  const ohms = getOhmsValue(bands.color1, bands.color2, bands.multiplier);
+  const formattedOhms = formatOhmsValue(ohms);
+  const tolerance = getTolerance(bands.tolerance);
+  const formattedTolerance = formatToleranceValue(tolerance);
+
+  const resistorValue = `${formattedOhms} Ohms ${formattedTolerance}`;
+
+  if (ohms >= 1000) {
+    const kiloOhms = ohms / 1000;
+    const formattedKiloOhms = formatOhmsValue(kiloOhms);
+    return `Resistor value: ${formattedKiloOhms}k ${formattedTolerance}`;
+  }
+
+  return resistorValue;
 }
 
 module.exports = {
