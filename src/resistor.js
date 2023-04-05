@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-undef */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-plusplus */
@@ -202,15 +203,13 @@ function getThreeBandValue(bands) {
  *
  */
 function formatNumber(val) {
-  const prefixes = ['', 'k', 'M', 'G']; // SI prefixes for thousand, million, billion
-  let index = 0;
-
-  while (val >= 1000 && index < prefixes.length - 1) {
+  const metricPrefixes = ['', 'k', 'M', 'G'];
+  let prefixIndex = 0;
+  while (val >= 1000 && prefixIndex < metricPrefixes.length - 1) {
     val /= 1000;
-    index++;
+    prefixIndex++;
   }
-
-  return `${val.toFixed(1)}${prefixes[index]}`;
+  return val.toFixed(1).replace(/\.0$/, '') + metricPrefixes[prefixIndex];
 }
 
 /**
@@ -271,20 +270,23 @@ function getTolerance(color) {
  * must use functions in this file to build the string using a template literal
  */
 function getResistorOhms(bands) {
-  const ohms = getOhmsValue(bands.color1, bands.color2, bands.multiplier);
-  const formattedOhms = formatOhmsValue(ohms);
-  const tolerance = getTolerance(bands.tolerance);
-  const formattedTolerance = formatToleranceValue(tolerance);
-
-  const resistorValue = `${formattedOhms} Ohms ${formattedTolerance}`;
-
-  if (ohms >= 1000) {
-    const kiloOhms = ohms / 1000;
-    const formattedKiloOhms = formatOhmsValue(kiloOhms);
-    return `Resistor value: ${formattedKiloOhms}k ${formattedTolerance}`;
+  const color1_value = getColorValue(bands.color1);
+  const color2_value = getColorValue(bands.color2);
+  const multiplier_value = getMultiplierValue(bands.multiplier);
+  const resistance = (color1_value * 10 + color2_value) * 10 ** multiplier_value;
+  const tolerance = parseFloat(bands.tolerance.replace('%', '')) / 100;
+  let value = '';
+  let unit = '';
+  if (resistance >= 1e6) {
+    value = (resistance / 1e6).toFixed(1);
+    unit = 'M';
+  } else if (resistance >= 1e3) {
+    value = (resistance / 1e3).toFixed(1);
+    unit = 'k';
+  } else {
+    value = resistance.toFixed(0);
   }
-
-  return resistorValue;
+  return `Resistor value: ${value}${unit} Ohms ±${tolerance * 100}%`;
 }
 
 module.exports = {
