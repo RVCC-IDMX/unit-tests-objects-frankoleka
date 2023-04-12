@@ -270,24 +270,19 @@ function getTolerance(color) {
  * must use functions in this file to build the string using a template literal
  */
 function getResistorOhms(bands) {
-  const color1_value = getColorValue(bands.color1);
-  const color2_value = getColorValue(bands.color2);
-  const multiplier_value = getMultiplierValue(bands.multiplier);
-  const resistance = (color1_value * 10 + color2_value) * 10 ** multiplier_value;
-  const tolerance = parseFloat(bands.tolerance.replace('%', '')) / 100;
-  let value = '';
-  let unit = '';
-  if (resistance >= 1e6) {
-    value = (resistance / 1e6).toFixed(1);
-    unit = 'M';
-  } else if (resistance >= 1e3) {
-    value = (resistance / 1e3).toFixed(1);
-    unit = 'k';
-  } else {
-    value = resistance.toFixed(0);
-  }
-  return `Resistor value: ${value}${unit} Ohms ±${tolerance * 100}%`;
+  const value = getThreeBandValue(bands);
+  const formattedValue = formatNumber(value);
+  const tolerance = getTolerance(bands.tolerance);
+  return `Resistor value: ${formattedValue} Ohms ${tolerance}`;
 }
+
+const value = getResistorOhms({
+  color1: 'green',
+  color2: 'blue',
+  multiplier: 'red',
+  tolerance: 'grey',
+});
+console.log(value);
 
 module.exports = {
   getColorValue,
